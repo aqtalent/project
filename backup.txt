@@ -1,0 +1,21 @@
+MACHINE List(type t)
+
+ATTRIBUTES
+    set list;
+    int size;
+OPERATIONS
+  void New(){
+    list={<nil,nil>};
+    size = 0;
+  }
+  void Destory(){
+    list={nil};
+    size=-1;
+  }
+  void Insert(t c,t e){
+    if((<c,y>:list)){
+      list=(list--{<c,y>})\-/{<c,e>,<e,y>};
+      size=size+1;
+    }
+  }
+END

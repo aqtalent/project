@@ -1,0 +1,19 @@
+read 1
+split 2
+read 3 r
+read 5 r
+read 4 r
+split 7 r
+imp_conj 8
+imp_conj 9
+read 10 r
+read 11 r
+split 13 r
+imp_conj 14
+imp_conj 15
+read 16 r
+read 17 r
+read 19 r
+print 6
+print 18
+print 20

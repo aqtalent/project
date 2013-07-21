@@ -1,0 +1,45 @@
+MACHINE List(type t)
+INVARIANT
+    (x > 1 -> x > 2);
+ATTRIBUTES
+    set list;
+    int size;
+OPERATIONS
+  int Mul(int x){
+    ATTRIBUTES
+    int y = 1;
+    while(x > 0){
+      y = x * y;
+      x = x - 1;
+    }
+    return y;
+  }
+  int Do_Nothing(int x){
+    return x + 1;
+  }
+  void Test(int x){
+    ATTRIBUTES
+    int y;
+    y = Do_Nothing(1);
+    if(x > 1)
+      size = 1;
+    else
+      size = 0;
+    return y;
+  }
+  void New(){
+    list={<nil,nil>};
+    size = 0+1*3-5+6/2;
+    Test(123);
+  }
+  void Destory(){
+    list={nil};
+    size=-1;
+  }
+  void Insert(t c,t e){
+    if((<c,y>:list)){
+      list=(list--{<c,y>})\-/{<c,e>,<e,y>};
+      size=size+1;
+    }
+  }
+END

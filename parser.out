@@ -1,0 +1,171 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    OPERATIONS
+    NOTEQUAL
+    TYPE_INT
+    TYPE_STRING
+    RETURN
+    LPAREN
+    NOTBELONGTO
+    LESS
+    ASSIGNMENT
+    CONST
+    EQUAL
+    ELSE
+    CHAR
+    WHILE
+    INVARIANT
+    TYPE_CHAR
+    TYPE_PROPOSITION
+    TRUE
+    MINUS
+    DIVIDE
+    GREATEREQUAL
+    INTERSECTION
+    RPAREN
+    SEMICOLON
+    TYPE_SET
+    FORALL
+    COMMA
+    VOID
+    BELONGTO
+    END
+    STRING
+    UNION
+    DIFFERENCE
+    RBRACE
+    MACHINE
+    NOT
+    LBRACE
+    RNUMBER
+    LESSEQUAL
+    IMPLICATION
+    TIMES
+    ID
+    IF
+    LBRACKET
+    DISJUNCTION
+    FALSE
+    GREATER
+    TYPE_BOOL
+    TYPE_TUPLE
+    NIL
+    EXIST
+    SEPERATOR
+    ATTRIBUTES
+    RBRACKET
+    CONJUNCTION
+    TYPE
+    TYPE_FLOAT
+
+Grammar
+
+Rule 0     S' -> exp
+Rule 1     exp -> NUMBER PLUS NUMBER
+
+Terminals, with rules where they appear
+
+ASSIGNMENT           : 
+ATTRIBUTES           : 
+BELONGTO             : 
+CHAR                 : 
+COMMA                : 
+CONJUNCTION          : 
+CONST                : 
+DIFFERENCE           : 
+DISJUNCTION          : 
+DIVIDE               : 
+ELSE                 : 
+END                  : 
+EQUAL                : 
+EXIST                : 
+FALSE                : 
+FORALL               : 
+GREATER              : 
+GREATEREQUAL         : 
+ID                   : 
+IF                   : 
+IMPLICATION          : 
+INTERSECTION         : 
+INVARIANT            : 
+LBRACE               : 
+LBRACKET             : 
+LESS                 : 
+LESSEQUAL            : 
+LPAREN               : 
+MACHINE              : 
+MINUS                : 
+NIL                  : 
+NOT                  : 
+NOTBELONGTO          : 
+NOTEQUAL             : 
+NUMBER               : 1 1
+OPERATIONS           : 
+PLUS                 : 1
+RBRACE               : 
+RBRACKET             : 
+RETURN               : 
+RNUMBER              : 
+RPAREN               : 
+SEMICOLON            : 
+SEPERATOR            : 
+STRING               : 
+TIMES                : 
+TRUE                 : 
+TYPE                 : 
+TYPE_BOOL            : 
+TYPE_CHAR            : 
+TYPE_FLOAT           : 
+TYPE_INT             : 
+TYPE_PROPOSITION     : 
+TYPE_SET             : 
+TYPE_STRING          : 
+TYPE_TUPLE           : 
+UNION                : 
+VOID                 : 
+WHILE                : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+exp                  : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . exp
+    (1) exp -> . NUMBER PLUS NUMBER
+
+    NUMBER          shift and go to state 1
+
+    exp                            shift and go to state 2
+
+state 1
+
+    (1) exp -> NUMBER . PLUS NUMBER
+
+    PLUS            shift and go to state 3
+
+
+state 2
+
+    (0) S' -> exp .
+
+
+
+state 3
+
+    (1) exp -> NUMBER PLUS . NUMBER
+
+    NUMBER          shift and go to state 4
+
+
+state 4
+
+    (1) exp -> NUMBER PLUS NUMBER .
+
+    $end            reduce using rule 1 (exp -> NUMBER PLUS NUMBER .)
+

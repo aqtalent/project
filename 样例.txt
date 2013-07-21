@@ -1,0 +1,70 @@
+MACHINE TEST(type t)
+ATTRIBUTES
+    type T_VMK_ReturnCode, T_UBYTE, T_UWORD;
+    T_UWORD curVMID;
+    T_VMK_ReturnCode VMK_OK, VMK_INVALID_ADDRESS, VMK_INVALID_NAME;
+    
+
+OPERATIONS
+T_VMK_ReturnCode vmkGetVMID(
+    T_UBYTE ubpName,
+    T_UWORD uwpVMID
+){
+if(ubpName==NULL){
+	uwpVMID=curVMID;
+	return VMK_OK;
+}
+if(NoValidName(ubpName)){
+	return VMK_INVALID_ADDRESS;
+}
+if(vm.<NAME:ubpName>!:appVM){
+	return VMK_INVALID_NAME;
+}
+uwpVMID=vm.<ID>;
+return VMK_OK;
+}
+END
+
+
+A1 = w(ubpName = ubpName0; ){if(ubpName)==(NULL){...}else{...}; Q0} --- Reason: None
+>>> read 1
+A2 = (((ubpName)==(NULL))->(w(curVMID = curVMID0; uwpVMID = uwpVMID0; ){uwpVMID = curVMID; Q1}))/\((~((ubpName)==(NULL)))->(w(NoValidName = NoValidName0; ){ifNoValidName(ubpName){...}else{...}; Q2})) --- Reason: Read a statement.
+>>> split 2
+A3 = ((ubpName)==(NULL))->(w(curVMID = curVMID0; uwpVMID = uwpVMID0; ){uwpVMID = curVMID; Q1}) --- Reason: Split l, A2
+A4 = (~((ubpName)==(NULL)))->(w(NoValidName = NoValidName0; ){ifNoValidName(ubpName){...}else{...}; Q2}) --- Reason: Split r, A2
+>>> read 3 r
+A5 = ((ubpName)==(NULL))->(w(VMK_OK = VMK_OK0; ){return VMK_OK; Q3}) --- Reason: Read a statement.
+>>> read 5 r
+A6 = ((ubpName)==(NULL))->((RETURN = VMK_OK)/\(uwpVMID = curVMID)) --- Reason: Read a statement.
+>>> read 4 r
+A7 = (~((ubpName)==(NULL)))->(((NoValidName(ubpName))->(w(VMK_INVALID_ADDRESS = VMK_INVALID_ADDRESS0; ){return VMK_INVALID_ADDRESS; Q4}))/\((~(NoValidName(ubpName)))->(w(appVM = appVM0; ){if(vm.<NAME:ubpName>)!:(appVM){...}else{...}; Q5}))) --- Reason: Read a statement.
+>>> split 7 r
+A8 = (~((ubpName)==(NULL)))->((NoValidName(ubpName))->(w(VMK_INVALID_ADDRESS = VMK_INVALID_ADDRESS0; ){return VMK_INVALID_ADDRESS; Q4})) --- Reason: Split l, A7
+A9 = (~((ubpName)==(NULL)))->((~(NoValidName(ubpName)))->(w(appVM = appVM0; ){if(vm.<NAME:ubpName>)!:(appVM){...}else{...}; Q5})) --- Reason: Split r, A7
+>>> imp_conj 8
+A10 = ((~((ubpName)==(NULL)))/\(NoValidName(ubpName)))->(w(VMK_INVALID_ADDRESS = VMK_INVALID_ADDRESS0; ){return VMK_INVALID_ADDRESS; Q4}) --- Reason: A -> B ->C |- A /\ B -> C    A8
+>>> imp_conj 9
+A11 = ((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))->(w(appVM = appVM0; ){if(vm.<NAME:ubpName>)!:(appVM){...}else{...}; Q5}) --- Reason: A -> B ->C |- A /\ B -> C    A9
+>>> read 10 r
+A12 = ((~((ubpName)==(NULL)))/\(NoValidName(ubpName)))->(RETURN = VMK_INVALID_ADDRESS) --- Reason: Read a statement.
+>>> read 11 r
+A13 = ((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))->((((vm.<NAME:ubpName>)!:(appVM))->(w(VMK_INVALID_NAME = VMK_INVALID_NAME0; ){return VMK_INVALID_NAME; Q6}))/\((~((vm.<NAME:ubpName>)!:(appVM)))->(w(uwpVMID = uwpVMID0; ){uwpVMID = vm.<ID>; Q7}))) --- Reason: Read a statement.
+>>> split 13 r
+A14 = ((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))->(((vm.<NAME:ubpName>)!:(appVM))->(w(VMK_INVALID_NAME = VMK_INVALID_NAME0; ){return VMK_INVALID_NAME; Q6})) --- Reason: Split l, A13
+A15 = ((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))->((~((vm.<NAME:ubpName>)!:(appVM)))->(w(uwpVMID = uwpVMID0; ){uwpVMID = vm.<ID>; Q7})) --- Reason: Split r, A13
+>>> imp_conj 14
+A16 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\((vm.<NAME:ubpName>)!:(appVM)))->(w(VMK_INVALID_NAME = VMK_INVALID_NAME0; ){return VMK_INVALID_NAME; Q6}) --- Reason: A -> B ->C |- A /\ B -> C    A14
+>>> imp_conj 15
+A17 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\(~((vm.<NAME:ubpName>)!:(appVM))))->(w(uwpVMID = uwpVMID0; ){uwpVMID = vm.<ID>; Q7}) --- Reason: A -> B ->C |- A /\ B -> C    A15
+>>> read 16 r
+A18 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\((vm.<NAME:ubpName>)!:(appVM)))->(RETURN = VMK_INVALID_NAME) --- Reason: Read a statement.
+>>> read 17 r
+A19 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\(~((vm.<NAME:ubpName>)!:(appVM))))->(w(VMK_OK = VMK_OK0; ){return VMK_OK; Q8}) --- Reason: Read a statement.
+>>> read 19 r
+A20 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\(~((vm.<NAME:ubpName>)!:(appVM))))->((RETURN = VMK_OK)/\(uwpVMID = vm.<ID>)) --- Reason: Read a statement.
+>>> print 6
+A6 = ((ubpName)==(NULL))->((RETURN = VMK_OK)/\(uwpVMID = curVMID)) --- Reason: Read a statement.
+>>> print 18
+A18 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\((vm.<NAME:ubpName>)!:(appVM)))->(RETURN = VMK_INVALID_NAME) --- Reason: Read a statement.
+>>> print 20
+A20 = (((~((ubpName)==(NULL)))/\(~(NoValidName(ubpName))))/\(~((vm.<NAME:ubpName>)!:(appVM))))->((RETURN = VMK_OK)/\(uwpVMID = vm.<ID>)) --- Reason: Read a statement.

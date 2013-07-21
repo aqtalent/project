@@ -1,0 +1,26 @@
+MACHINE TEST(type t)
+ATTRIBUTES
+    type T_VMK_ReturnCode, T_UBYTE, T_UWORD;
+    T_UWORD curVMID, TMP;
+    T_VMK_ReturnCode VMK_OK, VMK_INVALID_ADDRESS, VMK_INVALID_NAME;
+    
+
+OPERATIONS
+T_VMK_ReturnCode vmkGetVMID(
+    T_UBYTE ubpName,
+    T_UWORD uwpVMID
+){
+if(ubpName==NULL){
+	uwpVMID=curVMID;
+	return VMK_OK;
+}
+if(NoValidName(ubpName)){
+	return VMK_INVALID_ADDRESS;
+}
+if(vm.<NAME:ubpName>!:appVM){
+	return VMK_INVALID_NAME;
+}
+uwpVMID=vm.<ID>;
+return VMK_OK;
+}
+END
