@@ -1,3 +1,14 @@
+'''
+# Now this project has been published in github.
+#
+#
+#
+#
+#
+# Author: Angel An.
+# All right reserved.
+'''
+
 from compiler_symbol_table import Node, Proposition_Node
 from compiler_manual_paser import Manual_Proof_Parser
 import compiler_semantic
