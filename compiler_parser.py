@@ -270,6 +270,11 @@ class Proof_Parser(Parser):
         p[0] = Node('FUN', None, None, [p[1], None])
         print 'p_direct_declarator_6'
 
+    def p_direct_declarator_7(self, p):
+        'direct_declarator : unary_expression'
+        p[0] = p[1]
+        print 'p_direct_declarator_6'
+
     # Constant Expression Opt
 
     def p_constant_expression_opt_1(self, p):
@@ -899,7 +904,9 @@ class Proof_Parser(Parser):
 
     def p_unary_expression_2(self, p):
         'unary_expression : unary_operator cast_expression'
-        if p[2].value_type in ('NUMBER', 'RNUMBER', 'CHAR'):
+        if p[1] == '*':
+            p[0] = Node('POINTER', p[2].value_type, None, [p[2]])
+        elif p[2].value_type in ('NUMBER', 'RNUMBER', 'CHAR'):
             if p[1] == '+':    # PLUS
                 p[0] = p[2]
             else:
@@ -912,7 +919,8 @@ class Proof_Parser(Parser):
 
     def p_unary_operator(self, p):
         '''unary_operator : PLUS
-                          | MINUS'''
+                          | MINUS
+                          | TIMES'''
         p[0] = p[1]
         print 'p_unary_operator'
 
@@ -1051,11 +1059,7 @@ class Proof_Parser(Parser):
     #start = 'set_relational_expression'#'tuple_expression'
 
 if __name__ == '__main__':
-    f = open('test.txt', 'r')
-    m = Proof_Parser()
-    #x = m.run(''.join(f.readlines()))
-    f.close()
-    x = m.run('''
+    '''
 MACHINE TEST(type t)
 ATTRIBUTES
     type T_VMK_ReturnCode, T_UBYTE, T_UWORD;
@@ -1078,6 +1082,23 @@ if(vm.<NAME:ubpName>:appVM){
 }
 uwpVMID=vm.<ID>;
 return VMK_OK;
+}
+END
+'''
+    f = open('test.txt', 'r')
+    m = Proof_Parser()
+    #x = m.run(''.join(f.readlines()))
+    f.close()
+    x = m.run('''
+MACHINE TEST(type t)
+ATTRIBUTES
+    int *x;
+    
+
+OPERATIONS
+T_VMK_ReturnCode vmkGetVMID(){
+*x = 1;
+return *x;
 }
 END
 ''')
