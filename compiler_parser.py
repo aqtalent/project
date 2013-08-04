@@ -131,7 +131,7 @@ class Proof_Parser(Parser):
 
     def p_function_definition_2(self, p):
         'function_definition : declarator compound_statement'
-        p[0] = Node('FUNDEF', 'VOID', None, [p[2], p[3]])
+        p[0] = Node('FUNDEF', 'VOID', None, [p[1], p[2]])
         print 'p_function_definition_2'
 
     # Declaration List
@@ -319,6 +319,10 @@ class Proof_Parser(Parser):
             #p[0] = Node('ID', p[1], None, [p[2], None])
             p[2].value_type = p[1]
             p[0] = p[2]
+        elif p[2].symbol_type == 'POINTER':
+            p[2].value_type = p[1]
+            p[0] = p[2]
+            print 'This is pointer.'
         else:
             print 'A function in p_parameter_declaration_1?'
         print 'p_parameter_declaration_1'
@@ -905,7 +909,8 @@ class Proof_Parser(Parser):
     def p_unary_expression_2(self, p):
         'unary_expression : unary_operator cast_expression'
         if p[1] == '*':
-            p[0] = Node('POINTER', p[2].value_type, None, [p[2]])
+            # ID, Value, Address
+            p[0] = Node('POINTER', p[2].value_type, None, [p[2], None, None])
         elif p[2].value_type in ('NUMBER', 'RNUMBER', 'CHAR'):
             if p[1] == '+':    # PLUS
                 p[0] = p[2]
@@ -978,14 +983,17 @@ class Proof_Parser(Parser):
         '''lprimary_expression : ID
                                | tuple_expression
                                | ID DOT LESS ID BELONGTO ID GREATER
-                               | ID DOT LESS ID GREATER'''
+                               | ID DOT LESS ID GREATER
+                               | ID DOT LESS ID BELONGTO TIMES ID GREATER'''
         if isinstance(p[1],basestring):
             if len(p) == 2:
                 p[0] = Node('ID', None, None, [p[1], None])
             elif len(p) == 6:
                 p[0] = Node('STRUCT', None, None, [p[1], p[4]])
-            else:
+            elif len(p) == 8:
                 p[0] = Node('STRUCT', None, None, [p[1], p[4], p[6]])
+            else: # len(p) == 9
+                p[0] = Node('STRUCT_POINTER', None, None, [p[1], p[4], p[7]])
         else:
             p[0] = p[1]
         print 'p_lprimary_expression'
@@ -1085,12 +1093,7 @@ return VMK_OK;
 }
 END
 '''
-    f = open('test.txt', 'r')
-    m = Proof_Parser()
-    #x = m.run(''.join(f.readlines()))
-    f.close()
-    x = m.run('''
-MACHINE TEST(type t)
+    '''
 ATTRIBUTES
     int *x;
     
@@ -1099,6 +1102,41 @@ OPERATIONS
 T_VMK_ReturnCode vmkGetVMID(){
 *x = 1;
 return *x;
+}
+'''
+    f = open('test.txt', 'r')
+    m = Proof_Parser()
+    #x = m.run(''.join(f.readlines()))
+    f.close()
+    x = m.run('''
+MACHINE TEST(type t)
+
+ATTRIBUTES
+	type T_UBYTE, T_UWORD, T_VMK_ReturnCode;
+	T_VMK_ReturnCode VMK_OK, VMK_INVALID_ADDRESS, VMK_INVALID_NAME;
+
+
+OPERATIONS
+T_VMK_ReturnCode vmkSyscallGetVMID(
+	T_UBYTE *name,
+	T_UWORD *vmID
+){
+if(~checkValidAddress(vmID)){
+	return VMD_INVALID_ADDRESS;
+}
+if(*name==NULL){
+	*vmID=curVM.<ID>;
+	return VMK_OK;
+}
+if(~checkValidAddress(name)){
+	return VMD_INVALID_ADDRESS;
+}
+vm.<NAME:*name>:appVM;
+if(vm==NULL){
+	return VMK_INVALID_NAME;
+}
+*vmID=vm.<ID>;
+return VMK_OK;
 }
 END
 ''')

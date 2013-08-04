@@ -55,6 +55,7 @@ class Lexer:
         # MACHINE
         # CAST               force transform
         # STRUCT             e.g. vm.<ID>
+        # STRUCT_POINTER     e.g. vm.<Name:*id>
         'PLUS',            # +
         'MINUS',           # -
         'TIMES',           # *

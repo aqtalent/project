@@ -1,0 +1,22 @@
+read 1
+split 2
+read 3 r
+read 4 r
+split 6 r
+imp_conj 7
+read 9 r
+read 10 r
+imp_conj 8
+read 12 r
+split 13 r
+imp_conj 14
+imp_conj 15
+read 16 r
+read 17 r
+read 19 r
+split 20 r
+imp_conj 21
+read 23 r
+imp_conj 22
+read 25 r
+read 26 r

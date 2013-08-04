@@ -24,11 +24,12 @@ class Proof_Term_Context(object):
         return result
 
     def get_symbol(self, name, proof):
-        #print name, 'hello'
+        #print name, 'hello', proof.symbol_table
         org_context = proof.symbol_table
         for table, scope in [(self.t.table, 't'), (org_context.t.table, 't'),
                              (self.p.table, 'p'), (org_context.p.table, 'p'),
                              (self.e.table, 'e'), (org_context.e.table, 'e')]:
+            #print table, 'Hello'
             if table != None and table.has_key(name):
                 if isinstance(table[name], compiler_symbol_table.Node):
                     if table[name].symbol_type == 'ID':
@@ -41,6 +42,7 @@ class Proof_Term_Context(object):
                         return table[name].value_type, table[name], scope
                 else: # function
                     # Bug?
+                    #print name, table[name]
                     return table[name].value_type, table[name], scope
         return None, None, None
 
@@ -122,9 +124,17 @@ def build_original_symbol_table(lst):
     if lst == None:
         return table
     for item in lst:
-        key = item.value[0]
+        if item.symbol_type == 'POINTER':
+            key = '*' + item.value[0].value[0]
+        else:
+            key = item.value[0]
         if not table.has_key(key):
             table[key] = item
+        elif item.symbol_type == 'POINTER' and not table.has_key(key[1:]):
+            table[key[1:]] = Node('POINTER',
+                                  item.value_type,
+                                  None,
+                                  [key[1:], None, None])
         else:
             return -1
     return table

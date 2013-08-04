@@ -51,9 +51,28 @@ class Statement_Tactics(Tactics):
         # for const values
         if exp.symbol_type == 'CONST':
             return exp
-        elif exp.symbol_type == 'ID':
+        elif exp.symbol_type == 'POINTER':
+            # result is a vector [value, address]
             s_type, result, scope = symbol_table_func(exp.value[0])
-            #print exp.value[0], exp.operation, scope
+            if (len(result) == 0 and scope != 't') or exp.operation == 'ITER':
+                if isinstance(s_type, str):
+                    exp.value_type = s_type
+                elif not s_type[0] in ('int', 'double', 'char', 'string'):
+                    exp.value_type = s_type[0]
+                else:
+                    exp.value_type = {'int': 'NUMBER',
+                                      'double': 'RNUMBER',
+                                      'char': 'CHAR',
+                                      'string': 'STRING'}[s_type[0]]
+                return exp
+            elif len(result) == 0 and scope != 'p':
+                print 'Using a variable not assignmented.'
+                return exp
+            return result[0]
+        elif exp.symbol_type == 'ID':
+            #print 'into...', exp.value[0]
+            s_type, result, scope = symbol_table_func(exp.value[0])
+            #print result, exp.value
             if (result == None and scope != 't') or exp.operation == 'ITER':
                 if isinstance(s_type, str):
                     exp.value_type = s_type
@@ -68,7 +87,8 @@ class Statement_Tactics(Tactics):
             elif result == None and scope != 'p':
                 print 'Using a variable not assignmented.'
                 return exp
-            
+            if isinstance(result, list):
+                return result[-1]
             return result
         elif exp.symbol_type == 'FUNC':
             # function is a term (instance of compiler_semantic.Proposition)
@@ -156,9 +176,18 @@ class Statement_Tactics(Tactics):
             if manual:
                 right = manual
             symbol_table_func = lambda x: term.context.get_symbol(x, proof)
-            left_key = left.value[0]
+            if left.symbol_type == 'POINTER':
+                left_key = '*' + left.value[0].value[0]
+            else:
+                left_key = left.value[0]
+            print left_key
             #left_val, scope = term.context.get_symbol(left_key, proof)
             s_type, left_val, scope = symbol_table_func(left_key)
+            #print s_type, left_val, scope
+
+            pointer = False
+            if left.symbol_type == 'POINTER':
+                pointer = True
 
             #deal with right value
             right_result = self.eval_expression(right, symbol_table_func)
@@ -173,7 +202,14 @@ class Statement_Tactics(Tactics):
             tmp = {'e': term.context.e.table,
                    'p': term.context.p.table,
                    't': term.context.t.table}[scope]
-            tmp[left_key] = copy.deepcopy(right_result)
+            if left.symbol_type == 'POINTER' and not tmp.has_key(left_key):
+                tmp['*' + left_key] = [None, None]
+            if tmp.has_key(left_key) and pointer:
+                tmp['*' + left_key][0] = copy.deepcopy(right_result)
+            elif tmp.has_key(left_key) and not pointer:
+                tmp[left_key][1] = copy.deepcopy(right_result)
+            else:
+                tmp[left_key] = copy.deepcopy(right_result)
 
             # used for confirm if the same w(i?) in proof
             term.context.change_time += 1
@@ -519,8 +555,8 @@ class Proposition_Tactics(Tactics):
                     v_type, v, scope = \
                             term.context.get_symbol(key, context)
                     #print 'Hello, world!', key, context.context.p.table
-                    if context.context.p.table.has_key('uwpVMID'):
-                        print context.context.p.table['uwpVMID'].symbol_type
+                    #if context.context.p.table.has_key('uwpVMID'):
+                    #    print context.context.p.table['uwpVMID'].symbol_type
                 else:
                     v_type, v, scope = \
                         term.context.get_symbol(key, proof)
@@ -589,6 +625,8 @@ class Proposition_Tactics(Tactics):
                     result = '%s.<%s>' %tuple(exp.value)
                 else:
                     result = '%s.<%s:%s>' %tuple(exp.value)
+            elif exp.symbol_type == 'STRUCT_POINTER':
+                result = '%s.<%s:*%s>' %tuple(exp.value)
             elif exp.symbol_type == 'FUNC':
                 result = self.ppt_helper(exp.value[0], v_list, proof, iter_id,
                                          context = context)
@@ -603,8 +641,11 @@ class Proposition_Tactics(Tactics):
                 left, right = \
                       self.ppt_helper(exp.value[0], v_list, proof, iter_id,
                                       context = context), \
-                      self.ppt_helper(exp.value[1], v_list, proof, iter_id,
+                      self.ppt_helper(exp.value[1] if not isinstance(exp.value[1], list) else exp.value[1][0]
+                                      , v_list, proof, iter_id,
                                       context = context)
+                #if isinstance(exp.value[1], list):
+                #    print exp.value[1][0].symbol_type
                 result = '%s = %s' %(left, right)
             elif exp.symbol_type == 'ID':
                 #print 123, exp.value
@@ -616,6 +657,16 @@ class Proposition_Tactics(Tactics):
                     return exp.value[1]
                 else:
                     return exp.value[0]
+            elif exp.symbol_type == 'POINTER':
+                #print exp, exp.value[0].symbol_type, exp.value[0].value
+                if iter_id.isdigit():
+                    return '*' + exp.value[0].value[0] + '0'
+                elif iter_id != '':
+                    return '*' + exp.value[0].value[0] + iter_id
+                elif isinstance(exp.value[1], str):
+                    return exp.value[1]
+                else:
+                    return '*' + exp.value[0].value[0]
             elif exp.symbol_type == 'CONST':
                 #print exp.value, exp.symbol_type, exp.value_type
                 return str(exp.value)
@@ -793,6 +844,7 @@ class Tactic_Router():
             
         self.ptac.add_proof_term(proof, new_pt_l)
         self.ptac.add_proof_term(proof, new_pt_r)
+
         print self.ptac.print_proof_term(new_pt_l, proof = proof)
         print self.ptac.print_proof_term(new_pt_r, proof = proof)
 
@@ -990,14 +1042,14 @@ def console():
 
     print ptac.print_proof_term(a.proof_list[0], proof = a)
 
-    flag = True
+    flag = False
     if flag:
         line = 'begin'
         while(line.split()[0] != 'exit'):
             line = raw_input('>>> ')
             worker(line, a, tac, ptac, tac_r)
     else:
-        f = open('commands.txt', 'r')
+        f = open('commands1.txt', 'r')
         for line in f:
             print '>>>', line,
             if line .split()[0] == 'exit':
@@ -1008,7 +1060,8 @@ def console():
 def worker(line, a, tac, ptac, tac_r):
     l = line.split()
     a_last = copy.deepcopy(a)
-    try:
+    #try:
+    if True:
         if l[0] == 'read':
             if len(l) == 3:
                 tmp, idx, sub_str = l
@@ -1043,9 +1096,9 @@ def worker(line, a, tac, ptac, tac_r):
             idx = int(idx) - 1
             tac_r.handle_statement(a, a.proof_list[idx], sub_str, x)
         a_last = copy.deepcopy(a)
-    except Exception, e:
-        print '>>>', 'Error'
-        a = copy.deepcopy(a_last)
+    #except Exception, e:
+    #    print '>>>', 'Error', e
+    #    a = copy.deepcopy(a_last)
 
 if __name__ == '__main__':
     console()
