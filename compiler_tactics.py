@@ -180,7 +180,7 @@ class Statement_Tactics(Tactics):
                 left_key = '*' + left.value[0].value[0]
             else:
                 left_key = left.value[0]
-            print left_key
+            #print left_key
             #left_val, scope = term.context.get_symbol(left_key, proof)
             s_type, left_val, scope = symbol_table_func(left_key)
             #print s_type, left_val, scope
@@ -202,10 +202,15 @@ class Statement_Tactics(Tactics):
             tmp = {'e': term.context.e.table,
                    'p': term.context.p.table,
                    't': term.context.t.table}[scope]
+            lk = ''
+            if left.symbol_type == 'POINTER' and left_key[0] != '*':
+                lk = left_key
+            else:
+                '*' + left_key
             if left.symbol_type == 'POINTER' and not tmp.has_key(left_key):
-                tmp['*' + left_key] = [None, None]
+                tmp[lk] = [None, None]
             if tmp.has_key(left_key) and pointer:
-                tmp['*' + left_key][0] = copy.deepcopy(right_result)
+                tmp[lk][0] = copy.deepcopy(right_result)
             elif tmp.has_key(left_key) and not pointer:
                 tmp[left_key][1] = copy.deepcopy(right_result)
             else:
