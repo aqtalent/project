@@ -1,30 +1,36 @@
 MACHINE TEST(type t)
 
 ATTRIBUTES
-	type T_UBYTE, T_UWORD, T_VMK_ReturnCode;
-	T_VMK_ReturnCode VMK_OK, VMD_INVALID_ADDRESS, VMK_INVALID_NAME;
+	type T_UBYTE, T_UWORD, T_VMK_ReturnCode, Set;
+	T_VMK_ReturnCode VMK_OK, VMK_INVALID_ADDRESS, VMK_INVALID_NAME;
 
 
 OPERATIONS
-T_VMK_ReturnCode vmkSyscallGetVMID(
-	T_UBYTE *name,
-	T_UWORD *vmID
+T_VMK_ReturnCode vmkGetVMID(
+    T_UBYTE name,
+    T_UWORD vmID,
+Set curVM
 ){
-if(~checkValidAddress(vmID)){
-	return VMD_INVALID_ADDRESS;
+if(vmID==NULL){
+	return VMK_INVALID_ADDRESS;
 }
-if(*name==NULL){
-	*vmID=curVM.<ID>;
+if(name ==NULL){
+	if(curVM:idleVM){
+		return VMK_INVALID_NAME;
+	}
+	else if(curVM:appVM\/kerVM){
+		vmID =curVMID;
+		return VMK_OK;
+	}
+}
+else{
+	vm.<NAME:ubpName>:appVM\/kerVM;
+	if(vm==NULL){
+		return VMK_INVALID_NAME;
+	}
+	uwpVMID=vm.<ID>;
 	return VMK_OK;
+	}
 }
-if(~checkValidAddress(name)){
-	return VMD_INVALID_ADDRESS;
-}
-vm.<NAME:*name>:appVM;
-if(vm==NULL){
-	return VMK_INVALID_NAME;
-}
-*vmID=vm.<ID>;
-return VMK_OK;
-}
+
 END

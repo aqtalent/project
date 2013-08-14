@@ -226,12 +226,16 @@ class Statement_Tactics(Tactics):
         elif exp.symbol_type == 'SELECTION':
             # [if P then S1 else S2]Q
             P, S1, S2 = exp.value
+            #print 'Hello, World', S1, S1.symbol_type, S1.value
             Q1, Q2 = term.expression, copy.deepcopy(term.expression)
             #Q1.insert(0, S1)
             #Q2.insert(0, S2)
             S1 = copy.deepcopy(S1.value[-1])
             if S2:
-                S2 = copy.deepcopy(S2.value[-1])
+                if S2.symbol_type == 'SELECTION':
+                    S2 = [copy.deepcopy(S2)]
+                else:
+                    S2 = copy.deepcopy(S2.value[-1])
             Q1 = S1 + Q1
             if S2:
                 Q2 = S2 + Q2
@@ -529,6 +533,7 @@ class Proposition_Tactics(Tactics):
            term.prop_type == 'STATEMENT':
             exp = term.expression
 
+            #print type(term), term.expression
             s0, r0 = exp[0], ''
             if s0.symbol_type == 'EXPRESSION':
                 while s0.symbol_type == 'EXPRESSION':
@@ -690,10 +695,14 @@ class Proposition_Tactics(Tactics):
                     result = '%s(%s)' %(op_table[exp.operation], right)
                 else:
                     #print exp.value[0].symbol_type, exp.value[1]
-                    left, right = \
-                          self.ppt_helper(exp.value[0], v_list, proof, iter_id,
-                                          context = context), \
-                          self.ppt_helper(exp.value[1],  v_list, proof, iter_id,
+                    left = self.ppt_helper(exp.value[0], v_list, proof, iter_id,
+                                          context = context)
+                    #print op_table[exp.operation], exp.value[1], type(exp.value[1])
+                    if isinstance(exp.value[1], str):
+                        right = exp.value[1]
+                    else:
+                        #print op_table[exp.operation]
+                        right = self.ppt_helper(exp.value[1],  v_list, proof, iter_id,
                                           context = context)
                     result = '(%s)%s(%s)' \
                              %(left, op_table[exp.operation], right)
@@ -1054,7 +1063,7 @@ def console():
             line = raw_input('>>> ')
             worker(line, a, tac, ptac, tac_r)
     else:
-        f = open('commands1.txt', 'r')
+        f = open('commands.txt', 'r')
         for line in f:
             print '>>>', line,
             if line .split()[0] == 'exit':
@@ -1063,44 +1072,44 @@ def console():
     
 
 def worker(line, a, tac, ptac, tac_r):
-    l = line.split()
-    a_last = copy.deepcopy(a)
-    #try:
-    if True:
-        if l[0] == 'read':
-            if len(l) == 3:
-                tmp, idx, sub_str = l
-            else:
-                idx = l[-1]
-                sub_str = ''
-            idx = int(idx) - 1
-            tac_r.handle_statement(a, a.proof_list[idx], sub_str)
-        elif l[0] == 'split':
-            if len(l) == 3:
-                tmp, idx, sub_str = l
-            else:
-                idx = l[-1]
-                sub_str = ''
-            idx = int(idx) - 1
-            tac_r.split_method(a, a.proof_list[idx], sub_str)
-        elif l[0] == 'imp_conj':
-            idx = int(l[-1]) - 1
-            tac_r.imp_conj_method(a, a.proof_list[idx])
-        elif l[0] == 'print':
-            idx = int(l[-1]) -1
-            tac_r.print_method(a, a.proof_list[idx])
-        elif l[0] == 'man':
-            m = Manual_Proof_Parser()
-            line = raw_input('Imput expression: ')
-            x = m.run(line)
-            if len(l) == 4:
-                waste, tmp, idx, sub_str = l
-            else:
-                idx = l[-1]
-                sub_str = ''
-            idx = int(idx) - 1
-            tac_r.handle_statement(a, a.proof_list[idx], sub_str, x)
+        l = line.split()
         a_last = copy.deepcopy(a)
+    #try:
+        if True:
+            if l[0] == 'read':
+                if len(l) == 3:
+                    tmp, idx, sub_str = l
+                else:
+                    idx = l[-1]
+                    sub_str = ''
+                idx = int(idx) - 1
+                tac_r.handle_statement(a, a.proof_list[idx], sub_str)
+            elif l[0] == 'split':
+                if len(l) == 3:
+                    tmp, idx, sub_str = l
+                else:
+                    idx = l[-1]
+                    sub_str = ''
+                idx = int(idx) - 1
+                tac_r.split_method(a, a.proof_list[idx], sub_str)
+            elif l[0] == 'imp_conj':
+                idx = int(l[-1]) - 1
+                tac_r.imp_conj_method(a, a.proof_list[idx])
+            elif l[0] == 'print':
+                idx = int(l[-1]) -1
+                tac_r.print_method(a, a.proof_list[idx])
+            elif l[0] == 'man':
+                m = Manual_Proof_Parser()
+                line = raw_input('Imput expression: ')
+                x = m.run(line)
+                if len(l) == 4:
+                    waste, tmp, idx, sub_str = l
+                else:
+                    idx = l[-1]
+                    sub_str = ''
+                idx = int(idx) - 1
+                tac_r.handle_statement(a, a.proof_list[idx], sub_str, x)
+            a_last = copy.deepcopy(a)
     #except Exception, e:
     #    print '>>>', 'Error', e
     #    a = copy.deepcopy(a_last)
