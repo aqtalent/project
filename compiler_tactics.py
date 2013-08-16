@@ -1072,9 +1072,9 @@ def console():
     
 
 def worker(line, a, tac, ptac, tac_r):
-        l = line.split()
-        a_last = copy.deepcopy(a)
-    #try:
+    l = line.split()
+    a_last = copy.deepcopy(a)
+    try:
         if True:
             if l[0] == 'read':
                 if len(l) == 3:
@@ -1110,9 +1110,9 @@ def worker(line, a, tac, ptac, tac_r):
                 idx = int(idx) - 1
                 tac_r.handle_statement(a, a.proof_list[idx], sub_str, x)
             a_last = copy.deepcopy(a)
-    #except Exception, e:
-    #    print '>>>', 'Error', e
-    #    a = copy.deepcopy(a_last)
+    except Exception, e:
+        print '>>>', 'Error', e
+        a = copy.deepcopy(a_last)
 
 if __name__ == '__main__':
     console()
