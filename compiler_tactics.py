@@ -232,7 +232,7 @@ class Statement_Tactics(Tactics):
             #Q2.insert(0, S2)
             S1 = copy.deepcopy(S1.value[-1])
             if S2:
-                if S2.symbol_type == 'SELECTION':
+                if S2.symbol_type != 'STATEMENTLIST':
                     S2 = [copy.deepcopy(S2)]
                 else:
                     S2 = copy.deepcopy(S2.value[-1])
