@@ -5,3 +5,9 @@ read 4 r
 split 6 r
 imp_conj 7
 read 9 r
+split 10 r
+imp_conj 11
+read 13 r
+read 14 r
+imp_conj 12
+read 16 r

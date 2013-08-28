@@ -1,36 +1,38 @@
 MACHINE TEST(type t)
 
 ATTRIBUTES
-	type T_UBYTE, T_UWORD, T_VMK_ReturnCode, Set;
-	T_VMK_ReturnCode VMK_OK, VMK_INVALID_ADDRESS, VMK_INVALID_NAME;
+	type T_UWORD,T_VMK_VMStatus, T_VMK_ReturnCode;
+	T_VMK_ReturnCode VMK_OK, VMK_INVALID_ADDRESS,VMK_INVALID_ID, VMK_FAIL;
 
 
 OPERATIONS
-T_VMK_ReturnCode vmkGetVMID(
-    T_UBYTE name,
+T_VMK_ReturnCode vmkGetVMStatus(
     T_UWORD vmID,
-Set curVM
+    T_VMK_VMStatus *status
 ){
-if(vmID==NULL){
+if(*status==NULL){
 	return VMK_INVALID_ADDRESS;
 }
-if(name ==NULL){
+if(vmID==VMK_NULL_VID){
 	if(curVM:idleVM){
-		return VMK_INVALID_NAME;
-	}
-	else if(curVM:appVM\/kerVM){
-		vmID =curVMID;
-		return VMK_OK;
+			*status=curVM.<STATUS>;
+			return VMK_INVALID_ID;
+	}else if(curVM:idleVM\/kerVM){
+			*status=curVM.<STATUS>;
+			return VMK_OK;
 	}
 }
 else{
-	vm.<NAME:ubpName>:appVM\/kerVM;
+	vm.<ID:uwVMID>:appVM\/kerVM;
 	if(vm==NULL){
-		return VMK_INVALID_NAME;
-	}
-	uwpVMID=vm.<ID>;
-	return VMK_OK;
+		return VMK_INVALID_ID;
+	}else{
+		*status=vm.<STATUS>;
+		return VMK_OK;
 	}
 }
+}
+
+
 
 END

@@ -226,11 +226,12 @@ class Statement_Tactics(Tactics):
         elif exp.symbol_type == 'SELECTION':
             # [if P then S1 else S2]Q
             P, S1, S2 = exp.value
-            #print 'Hello, World', S1, S1.symbol_type, S1.value
+            #print 'Hello, World', P.symbol_type, S1, S1.symbol_type, S1.value
             Q1, Q2 = term.expression, copy.deepcopy(term.expression)
             #Q1.insert(0, S1)
             #Q2.insert(0, S2)
             S1 = copy.deepcopy(S1.value[-1])
+            #print exp.value
             if S2:
                 if S2.symbol_type != 'STATEMENTLIST':
                     S2 = [copy.deepcopy(S2)]
@@ -239,6 +240,9 @@ class Statement_Tactics(Tactics):
             Q1 = S1 + Q1
             if S2:
                 Q2 = S2 + Q2
+            #print 'Q1', Q1
+            #print 'S1', S1
+            #print Q2
             T1, T2 = copy.deepcopy(_term), copy.deepcopy(_term)
             T1.expression, T2.expression = Q1, Q2
             proof.qid = proof.qid + 1
@@ -534,6 +538,9 @@ class Proposition_Tactics(Tactics):
             exp = term.expression
 
             #print type(term), term.expression
+            #print exp
+            if len(exp) == 0:
+                return ''
             s0, r0 = exp[0], ''
             if s0.symbol_type == 'EXPRESSION':
                 while s0.symbol_type == 'EXPRESSION':
@@ -704,7 +711,12 @@ class Proposition_Tactics(Tactics):
                         #print op_table[exp.operation]
                         right = self.ppt_helper(exp.value[1],  v_list, proof, iter_id,
                                           context = context)
-                    result = '(%s)%s(%s)' \
+                    if isinstance(exp.value[1], compiler_semantic.Proposition) and \
+                       exp.value[1].prop_type == 'STATEMENT' and \
+                       len(exp.value[1].expression) == 0:
+                        result = 'True'
+                    else:
+                        result = '(%s)%s(%s)' \
                              %(left, op_table[exp.operation], right)
         elif term == None:
             pass
@@ -1072,9 +1084,9 @@ def console():
     
 
 def worker(line, a, tac, ptac, tac_r):
-    l = line.split()
-    a_last = copy.deepcopy(a)
-    try:
+        l = line.split()
+        a_last = copy.deepcopy(a)
+    #try:
         if True:
             if l[0] == 'read':
                 if len(l) == 3:
@@ -1110,9 +1122,9 @@ def worker(line, a, tac, ptac, tac_r):
                 idx = int(idx) - 1
                 tac_r.handle_statement(a, a.proof_list[idx], sub_str, x)
             a_last = copy.deepcopy(a)
-    except Exception, e:
-        print '>>>', 'Error', e
-        a = copy.deepcopy(a_last)
+    #except Exception, e:
+    #    print '>>>', 'Error', e
+    #    a = copy.deepcopy(a_last)
 
 if __name__ == '__main__':
     console()
